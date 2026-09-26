@@ -225,7 +225,7 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
                     <td className="py-3 px-4">
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-semibold">
                         <Scale className="w-3 h-3 text-ocean-600" />
-                        {formatWeight(prod.weight || 200)}
+                        {prod.weight && prod.weight > 0 ? formatWeight(prod.weight) : '-'}
                       </span>
                     </td>
 

@@ -85,13 +85,13 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
       );
 
       // Initialize Weight
-      const initWeight = initialProduct.weight || 200;
+      const initWeight = initialProduct.weight !== undefined ? initialProduct.weight : 0;
       if (initWeight >= 1000 && initWeight % 100 === 0) {
         setWeightUnit('kg');
         setWeightValue((initWeight / 1000).toString());
       } else {
         setWeightUnit('g');
-        setWeightValue(initWeight.toString());
+        setWeightValue(initWeight > 0 ? initWeight.toString() : '');
       }
 
       setImages([...initialProduct.images]);
@@ -107,7 +107,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
       setPriceInput('');
       setDiscountPriceInput('');
       setWeightUnit('g');
-      setWeightValue('200');
+      setWeightValue('');
       setImages([
         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
       ]);
@@ -300,15 +300,6 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
         type: 'warning',
         title: 'Harga Diskon Tidak Valid',
         message: 'Harga diskon harus lebih rendah dari harga normal.',
-      });
-      return;
-    }
-
-    if (parsedWeightInGrams <= 0) {
-      showToast({
-        type: 'warning',
-        title: 'Berat Produk Wajib Diisi',
-        message: 'Masukkan berat produk yang valid (contoh: 200 gram atau 0.5 kg).',
       });
       return;
     }
@@ -628,7 +619,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Berat Produk *
+                    Berat Produk (Bebas / Tanpa Batasan)
                   </label>
                   {/* UNIT SWITCHER: GRAM VS KG */}
                   <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 bg-white dark:bg-slate-800 text-[10px] font-bold">
@@ -661,8 +652,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
                   <input
                     type="text"
                     inputMode="decimal"
-                    required
-                    placeholder={weightUnit === 'g' ? 'Contoh: 250' : 'Contoh: 1.5'}
+                    placeholder={weightUnit === 'g' ? 'Bebas / Contoh: 250 (Boleh kosong / 0)' : 'Bebas / Contoh: 1.5 (Boleh kosong / 0)'}
                     value={weightValue}
                     onChange={handleWeightChange}
                     className="w-full pr-14 pl-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
@@ -679,9 +669,11 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
                   <span className="text-slate-500">
                     Disimpan:{' '}
                     <strong className="text-ocean-700 dark:text-ocean-300 font-mono">
-                      {parsedWeightInGrams >= 1000
-                        ? `${(parsedWeightInGrams / 1000).toFixed(2)} kg (${parsedWeightInGrams} g)`
-                        : `${parsedWeightInGrams} gram`}
+                      {parsedWeightInGrams > 0
+                        ? parsedWeightInGrams >= 1000
+                          ? `${(parsedWeightInGrams / 1000).toLocaleString('id-ID', { maximumFractionDigits: 3 })} kg (${parsedWeightInGrams} g)`
+                          : `${parsedWeightInGrams} gram`
+                        : '0 gram (Bebas / Tanpa berat)'}
                     </strong>
                   </span>
 
