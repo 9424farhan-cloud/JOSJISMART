@@ -11,6 +11,7 @@ import {
   MessageCircle,
   HelpCircle,
 } from 'lucide-react';
+import logoImg from '../assets/logo.png';
 
 interface AboutPageProps {
   settings: StoreSettings;
@@ -43,7 +44,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ settings }) => {
         {/* HEADER HERO */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <img
-            src="/logo.png"
+            src={logoImg}
             alt="JOSJISMART Logo"
             className="w-24 h-24 sm:w-28 sm:h-28 object-contain mx-auto drop-shadow-md rounded-2xl"
           />

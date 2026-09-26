@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   ShieldCheck,
 } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 
 export type AdminTab = 'dashboard' | 'products' | 'categories' | 'orders' | 'banners' | 'settings';
 
@@ -38,7 +39,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2.5">
           <img
-            src="/logo.png"
+            src={logoImg}
             alt="JOSJISMART"
             className="w-9 h-9 object-contain rounded-xl shadow-xs"
           />

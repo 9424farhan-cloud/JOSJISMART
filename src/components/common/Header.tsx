@@ -15,6 +15,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import logoImg from '../../assets/logo.png';
 
 interface HeaderProps {
   currentTab: 'home' | 'products' | 'categories' | 'about' | 'admin';
@@ -64,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-2.5 group text-left focus:outline-none"
             >
               <img
-                src="/logo.png"
+                src={logoImg}
                 alt="JOSJISMART Logo"
                 className="w-10 h-10 sm:w-11 sm:h-11 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
               />

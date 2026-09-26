@@ -1,6 +1,7 @@
 import React from 'react';
 import { Compass, Phone, Mail, MapPin, Shield, Truck, RefreshCw } from 'lucide-react';
 import { StoreSettings } from '../../types';
+import logoImg from '../../assets/logo.png';
 
 interface FooterProps {
   settings: StoreSettings;
@@ -54,7 +55,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, setCurrentTab }) => {
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <img
-                src="/logo.png"
+                src={logoImg}
                 alt="JOSJISMART Logo"
                 className="w-10 h-10 object-contain rounded-xl shadow-xs"
               />

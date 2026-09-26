@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { X, ShieldCheck, Lock, User, Eye, EyeOff, Sparkles } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 
 export const AuthModal: React.FC = () => {
   const { authModalOpen, setAuthModalOpen, loginAdmin, loginGoogle } = useAuth();
@@ -55,7 +56,7 @@ export const AuthModal: React.FC = () => {
         {/* HEADER */}
         <div className="text-center mb-6">
           <img
-            src="/logo.png"
+            src={logoImg}
             alt="JOSJISMART"
             className="w-16 h-16 object-contain mx-auto mb-3 drop-shadow-sm"
           />
