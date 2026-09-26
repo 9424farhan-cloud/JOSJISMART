@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Product, Category, Specification, ProductVariant, ProductStatus } from '../../types';
 import { useToast } from '../../context/ToastContext';
 import {
+  formatRupiah,
+  formatNumberWithDots,
+  parseCurrencyInput,
+  parseWeightInput,
+  calculateDiscountPercent,
+} from '../../utils/formatters';
+import {
   X,
   Plus,
   Trash2,
@@ -9,6 +16,10 @@ import {
   Image as ImageIcon,
   Check,
   Package,
+  Scale,
+  DollarSign,
+  AlertCircle,
+  Percent,
 } from 'lucide-react';
 
 interface AdminProductFormModalProps {
@@ -31,13 +42,18 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
   // Basic info
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [price, setPrice] = useState<number | ''>('');
-  const [discountPrice, setDiscountPrice] = useState<number | ''>('');
-  const [stock, setStock] = useState<number | ''>('');
-  const [weight, setWeight] = useState<number | ''>(200);
   const [status, setStatus] = useState<ProductStatus>('available');
   const [isFeatured, setIsFeatured] = useState(false);
   const [description, setDescription] = useState('');
+  const [stock, setStock] = useState<number | ''>(10);
+
+  // Price Management (Smooth input with thousands separators & live feedback)
+  const [priceInput, setPriceInput] = useState('');
+  const [discountPriceInput, setDiscountPriceInput] = useState('');
+
+  // Weight Management (Dual Unit: Gram / Kg with instant conversion)
+  const [weightUnit, setWeightUnit] = useState<'g' | 'kg'>('g');
+  const [weightValue, setWeightValue] = useState<string>('200');
 
   // Images
   const [images, setImages] = useState<string[]>([]);
@@ -57,26 +73,41 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
     if (initialProduct) {
       setName(initialProduct.name);
       setCategoryId(initialProduct.categoryId);
-      setPrice(initialProduct.price);
-      setDiscountPrice(initialProduct.discountPrice ?? '');
-      setStock(initialProduct.stock);
-      setWeight(initialProduct.weight);
       setStatus(initialProduct.status);
       setIsFeatured(initialProduct.isFeatured);
       setDescription(initialProduct.description);
+      setStock(initialProduct.stock);
+
+      // Initialize Price
+      setPriceInput(formatNumberWithDots(initialProduct.price));
+      setDiscountPriceInput(
+        initialProduct.discountPrice ? formatNumberWithDots(initialProduct.discountPrice) : ''
+      );
+
+      // Initialize Weight
+      const initWeight = initialProduct.weight || 200;
+      if (initWeight >= 1000 && initWeight % 100 === 0) {
+        setWeightUnit('kg');
+        setWeightValue((initWeight / 1000).toString());
+      } else {
+        setWeightUnit('g');
+        setWeightValue(initWeight.toString());
+      }
+
       setImages([...initialProduct.images]);
       setSpecifications(initialProduct.specifications ? [...initialProduct.specifications] : []);
       setVariants(initialProduct.variants ? [...initialProduct.variants] : []);
     } else {
       setName('');
       setCategoryId(categories[0]?.id || '');
-      setPrice('');
-      setDiscountPrice('');
-      setStock(10);
-      setWeight(200);
       setStatus('available');
       setIsFeatured(false);
       setDescription('');
+      setStock(10);
+      setPriceInput('');
+      setDiscountPriceInput('');
+      setWeightUnit('g');
+      setWeightValue('200');
       setImages([
         'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
       ]);
@@ -90,7 +121,78 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Handle local image file upload with size & format validation
+  // Numerical price calculations
+  const parsedPrice = parseCurrencyInput(priceInput);
+  const parsedDiscount = discountPriceInput ? parseCurrencyInput(discountPriceInput) : undefined;
+  const discountPercent = calculateDiscountPercent(parsedPrice, parsedDiscount);
+  const discountAmount = parsedDiscount && parsedDiscount < parsedPrice ? parsedPrice - parsedDiscount : 0;
+  const isDiscountInvalid = parsedDiscount !== undefined && parsedDiscount >= parsedPrice && parsedPrice > 0;
+
+  // Weight calculations
+  const parsedWeightInGrams = parseWeightInput(weightValue, weightUnit);
+
+  // Price input handlers
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const num = parseCurrencyInput(raw);
+    setPriceInput(num > 0 ? formatNumberWithDots(num) : raw.replace(/[^\d]/g, ''));
+  };
+
+  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const num = parseCurrencyInput(raw);
+    setDiscountPriceInput(num > 0 ? formatNumberWithDots(num) : raw.replace(/[^\d]/g, ''));
+  };
+
+  const handleApplyDiscountPercent = (percent: number) => {
+    if (parsedPrice <= 0) {
+      showToast({
+        type: 'warning',
+        title: 'Isi Harga Normal Terlebih Dahulu',
+        message: 'Masukkan harga normal produk sebelum menghitung diskon persen.',
+      });
+      return;
+    }
+    const calculatedDiscount = Math.round(parsedPrice * (1 - percent / 100));
+    setDiscountPriceInput(formatNumberWithDots(calculatedDiscount));
+  };
+
+  const handleAddPricePreset = (addAmount: number) => {
+    const current = parsedPrice;
+    const nextVal = current + addAmount;
+    setPriceInput(formatNumberWithDots(nextVal));
+  };
+
+  // Weight input handlers
+  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Allow digits, single comma or dot
+    const cleaned = val.replace(/,/g, '.').replace(/[^\d.]/g, '');
+    setWeightValue(cleaned);
+  };
+
+  const handleWeightUnitSwitch = (newUnit: 'g' | 'kg') => {
+    if (newUnit === weightUnit) return;
+    const currentGrams = parseWeightInput(weightValue, weightUnit);
+
+    if (newUnit === 'kg') {
+      const inKg = currentGrams / 1000;
+      setWeightValue(inKg > 0 ? inKg.toString() : '');
+    } else {
+      setWeightValue(currentGrams > 0 ? currentGrams.toString() : '');
+    }
+    setWeightUnit(newUnit);
+  };
+
+  const handleApplyWeightPreset = (presetGrams: number) => {
+    if (weightUnit === 'kg') {
+      setWeightValue((presetGrams / 1000).toString());
+    } else {
+      setWeightValue(presetGrams.toString());
+    }
+  };
+
+  // Image Upload Handlers
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -143,6 +245,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Specification Handlers
   const handleAddSpecification = () => {
     if (!newSpecKey.trim() || !newSpecVal.trim()) return;
     setSpecifications((prev) => [...prev, { label: newSpecKey.trim(), value: newSpecVal.trim() }]);
@@ -154,6 +257,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
     setSpecifications((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Variant Handlers
   const handleAddVariant = () => {
     if (!newVariantName.trim() || !newVariantOptions.trim()) return;
     const optionsArray = newVariantOptions
@@ -173,6 +277,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
     setVariants((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Form Submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -181,8 +286,30 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
       return;
     }
 
-    if (price === '' || Number(price) <= 0) {
-      showToast({ type: 'warning', title: 'Harga Produk Wajib Valid' });
+    if (parsedPrice <= 0) {
+      showToast({
+        type: 'warning',
+        title: 'Harga Produk Wajib Valid',
+        message: 'Masukkan harga produk lebih dari 0 rupiah.',
+      });
+      return;
+    }
+
+    if (isDiscountInvalid) {
+      showToast({
+        type: 'warning',
+        title: 'Harga Diskon Tidak Valid',
+        message: 'Harga diskon harus lebih rendah dari harga normal.',
+      });
+      return;
+    }
+
+    if (parsedWeightInGrams <= 0) {
+      showToast({
+        type: 'warning',
+        title: 'Berat Produk Wajib Diisi',
+        message: 'Masukkan berat produk yang valid (contoh: 200 gram atau 0.5 kg).',
+      });
       return;
     }
 
@@ -197,10 +324,10 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
       name: name.trim(),
       categoryId: selectedCategory?.id || 'cat-general',
       categoryName: selectedCategory?.name || 'Umum',
-      price: Number(price),
-      discountPrice: discountPrice !== '' && Number(discountPrice) > 0 ? Number(discountPrice) : undefined,
+      price: parsedPrice,
+      discountPrice: parsedDiscount && parsedDiscount > 0 ? parsedDiscount : undefined,
       stock: Number(stock) || 0,
-      weight: Number(weight) || 0,
+      weight: parsedWeightInGrams,
       status,
       isFeatured,
       description: description.trim(),
@@ -216,7 +343,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fade-in">
       <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden my-auto max-h-[94vh] flex flex-col">
         
-        {/* HEADER */}
+        {/* MODAL HEADER */}
         <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-ocean-100 dark:bg-ocean-950 text-ocean-600 flex items-center justify-center">
@@ -226,7 +353,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                 {initialProduct ? 'Edit Informasi Produk' : 'Tambah Produk Baru'}
               </h2>
-              <p className="text-xs text-slate-500">Kelola rincian stok, harga, foto, dan deskripsi toko</p>
+              <p className="text-xs text-slate-500">Kelola rincian stok, harga, berat, foto, dan deskripsi toko</p>
             </div>
           </div>
           <button
@@ -237,7 +364,7 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
           </button>
         </div>
 
-        {/* FORM BODY */}
+        {/* MODAL FORM BODY */}
         <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-4 sm:p-6 md:p-8 space-y-6">
           
           {/* SECTION: FOTO PRODUK */}
@@ -347,75 +474,290 @@ export const AdminProductFormModal: React.FC<AdminProductFormModalProps> = ({
                 <option value="out_of_stock">Stok Habis</option>
               </select>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Harga Normal (Rp) *
-              </label>
-              <input
-                type="number"
-                required
-                min={0}
-                placeholder="Contoh: 250000"
-                value={price}
-                onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
-              />
+          {/* ========================================================= */}
+          {/* OPTIMIZED SECTION: HARGA & HARGA DISKON */}
+          {/* ========================================================= */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-ocean-50/50 dark:bg-ocean-950/20 border border-ocean-100 dark:border-ocean-900/40 space-y-4">
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-ocean-600" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Pengaturan Harga Produk
+              </h3>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Harga Diskon (Rp, Opsional)
-              </label>
-              <input
-                type="number"
-                min={0}
-                placeholder="Kosongkan jika tidak diskon"
-                value={discountPrice}
-                onChange={(e) => setDiscountPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* HARGA NORMAL */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Harga Normal (Rp) *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Rp</span>
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    placeholder="Contoh: 250.000"
+                    value={priceInput}
+                    onChange={handlePriceChange}
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
+                  />
+                </div>
+
+                {/* LIVE PREVIEW & PRESETS */}
+                <div className="mt-1.5 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500">
+                    {parsedPrice > 0 ? (
+                      <strong className="text-ocean-700 dark:text-ocean-300 font-mono">
+                        {formatRupiah(parsedPrice)}
+                      </strong>
+                    ) : (
+                      'Masukkan nominal angka'
+                    )}
+                  </span>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleAddPricePreset(10000)}
+                      className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400"
+                    >
+                      +10rb
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddPricePreset(50000)}
+                      className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400"
+                    >
+                      +50rb
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddPricePreset(100000)}
+                      className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400"
+                    >
+                      +100rb
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* HARGA DISKON */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Harga Diskon (Rp, Opsional)
+                  </label>
+                  {discountPriceInput && (
+                    <button
+                      type="button"
+                      onClick={() => setDiscountPriceInput('')}
+                      className="text-[10px] text-rose-500 hover:underline"
+                    >
+                      Hapus Diskon
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Rp</span>
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Kosongkan jika tidak ada diskon"
+                    value={discountPriceInput}
+                    onChange={handleDiscountChange}
+                    className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border bg-white dark:bg-slate-800 text-xs sm:text-sm font-bold focus:outline-none ${
+                      isDiscountInvalid
+                        ? 'border-rose-400 text-rose-600 dark:border-rose-600'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:border-ocean-500'
+                    }`}
+                  />
+                </div>
+
+                {/* DISCOUNT STATUS & QUICK PERCENTAGE BUTTONS */}
+                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-1 text-[11px]">
+                  {isDiscountInvalid ? (
+                    <span className="text-rose-600 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Diskon harus lebih murah dari harga normal
+                    </span>
+                  ) : parsedDiscount && discountAmount > 0 ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                      Hemat {discountPercent}% (Potongan {formatRupiah(discountAmount)})
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">Pilih cepat diskon:</span>
+                  )}
+
+                  <div className="flex gap-1 ml-auto">
+                    {[10, 20, 30, 50].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => handleApplyDiscountPercent(p)}
+                        className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400 hover:text-ocean-600 font-semibold"
+                        title={`Terapkan diskon ${p}%`}
+                      >
+                        {p}%
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================= */}
+          {/* OPTIMIZED SECTION: BERAT PRODUK & STOK */}
+          {/* ========================================================= */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-4">
+            <div className="flex items-center gap-2">
+              <Scale className="w-4 h-4 text-ocean-600" />
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Berat Produk & Stok
+              </h3>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Jumlah Stok (Pcs) *
-              </label>
-              <input
-                type="number"
-                required
-                min={0}
-                value={stock}
-                onChange={(e) => setStock(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
-              />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* BERAT PRODUK */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Berat Produk *
+                  </label>
+                  {/* UNIT SWITCHER: GRAM VS KG */}
+                  <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 bg-white dark:bg-slate-800 text-[10px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => handleWeightUnitSwitch('g')}
+                      className={`px-2 py-0.5 rounded ${
+                        weightUnit === 'g'
+                          ? 'bg-ocean-600 text-white shadow-xs'
+                          : 'text-slate-500 hover:text-slate-800 dark:text-slate-300'
+                      }`}
+                    >
+                      Gram (g)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleWeightUnitSwitch('kg')}
+                      className={`px-2 py-0.5 rounded ${
+                        weightUnit === 'kg'
+                          ? 'bg-ocean-600 text-white shadow-xs'
+                          : 'text-slate-500 hover:text-slate-800 dark:text-slate-300'
+                      }`}
+                    >
+                      Kilogram (kg)
+                    </button>
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Berat Produk (Gram) *
-              </label>
-              <input
-                type="number"
-                required
-                min={0}
-                value={weight}
-                onChange={(e) => setWeight(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
-              />
-            </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    required
+                    placeholder={weightUnit === 'g' ? 'Contoh: 250' : 'Contoh: 1.5'}
+                    value={weightValue}
+                    onChange={handleWeightChange}
+                    className="w-full pr-14 pl-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <span className="text-xs font-bold text-slate-400 uppercase">
+                      {weightUnit}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="sm:col-span-2 pt-1 flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="isFeaturedToggle"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                className="w-4 h-4 rounded text-ocean-600 focus:ring-ocean-500"
-              />
-              <label htmlFor="isFeaturedToggle" className="text-xs font-semibold text-slate-800 dark:text-slate-200 cursor-pointer">
-                Tampilkan sebagai Produk Unggulan di Halaman Utama (Featured)
-              </label>
+                {/* LIVE WEIGHT PREVIEW & PRESET BUTTONS */}
+                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-1 text-[11px]">
+                  <span className="text-slate-500">
+                    Disimpan:{' '}
+                    <strong className="text-ocean-700 dark:text-ocean-300 font-mono">
+                      {parsedWeightInGrams >= 1000
+                        ? `${(parsedWeightInGrams / 1000).toFixed(2)} kg (${parsedWeightInGrams} g)`
+                        : `${parsedWeightInGrams} gram`}
+                    </strong>
+                  </span>
+
+                  <div className="flex gap-1 ml-auto">
+                    <button
+                      type="button"
+                      onClick={() => handleApplyWeightPreset(100)}
+                      className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400"
+                      title="100 gram (Ringan)"
+                    >
+                      100g
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyWeightPreset(250)}
+                      className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400"
+                      title="250 gram (Kemeja/Kopi)"
+                    >
+                      250g
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyWeightPreset(500)}
+                      className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400"
+                      title="500 gram (Tumbler)"
+                    >
+                      500g
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyWeightPreset(1000)}
+                      className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border text-slate-600 dark:text-slate-300 hover:border-ocean-400"
+                      title="1 kg (Sepatu/Tas)"
+                    >
+                      1 kg
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* JUMLAH STOK */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Jumlah Stok (Pcs) *
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value === '' ? '' : Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <span className="text-xs font-semibold text-slate-400">pcs</span>
+                  </div>
+                </div>
+                <p className="mt-1.5 text-[11px] text-slate-400">
+                  Status otomatis "Stok Habis" jika stok mencapai 0.
+                </p>
+              </div>
+
+              {/* FEATURED TOGGLE */}
+              <div className="sm:col-span-2 pt-1 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isFeaturedToggle"
+                  checked={isFeatured}
+                  onChange={(e) => setIsFeatured(e.target.checked)}
+                  className="w-4 h-4 rounded text-ocean-600 focus:ring-ocean-500"
+                />
+                <label htmlFor="isFeaturedToggle" className="text-xs font-semibold text-slate-800 dark:text-slate-200 cursor-pointer">
+                  ⭐ Tampilkan sebagai Produk Unggulan di Halaman Utama (Featured)
+                </label>
+              </div>
             </div>
           </div>
 

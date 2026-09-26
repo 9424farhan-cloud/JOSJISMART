@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Product, Category } from '../../types';
-import { formatRupiah } from '../../utils/formatters';
+import { formatRupiah, formatWeight, formatNumberWithDots, parseCurrencyInput } from '../../utils/formatters';
 import {
   Plus,
   Search,
@@ -10,6 +10,9 @@ import {
   CheckCircle2,
   AlertTriangle,
   Package,
+  Scale,
+  Check,
+  X,
 } from 'lucide-react';
 
 interface AdminProductsViewProps {
@@ -20,6 +23,7 @@ interface AdminProductsViewProps {
   onDeleteProduct: (productId: string) => void;
   onPreviewProduct: (product: Product) => void;
   onQuickUpdateStock: (productId: string, newStock: number) => void;
+  onQuickUpdatePrice?: (productId: string, newPrice: number) => void;
 }
 
 export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
@@ -30,9 +34,14 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
   onDeleteProduct,
   onPreviewProduct,
   onQuickUpdateStock,
+  onQuickUpdatePrice,
 }) => {
   const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState('all');
+
+  // Quick Inline Price Editing
+  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+  const [editingPriceValue, setEditingPriceValue] = useState<string>('');
 
   const filtered = products.filter((p) => {
     const matchesSearch =
@@ -41,6 +50,19 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
     const matchesCat = selectedCat === 'all' || p.categoryId === selectedCat;
     return matchesSearch && matchesCat;
   });
+
+  const startEditPrice = (prod: Product) => {
+    setEditingPriceId(prod.id);
+    setEditingPriceValue(formatNumberWithDots(prod.price));
+  };
+
+  const saveEditPrice = (productId: string) => {
+    const newPrice = parseCurrencyInput(editingPriceValue);
+    if (newPrice > 0 && onQuickUpdatePrice) {
+      onQuickUpdatePrice(productId, newPrice);
+    }
+    setEditingPriceId(null);
+  };
 
   return (
     <div className="space-y-5">
@@ -69,7 +91,7 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
         <div className="relative flex-1">
           <input
             type="text"
-            placeholder="Cari nama atau deskripsi barang..."
+            placeholder="Cari nama, bahan, atau deskripsi barang..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
@@ -100,7 +122,8 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
                 <th className="py-3.5 px-4">Foto</th>
                 <th className="py-3.5 px-4">Nama Produk</th>
                 <th className="py-3.5 px-4">Kategori</th>
-                <th className="py-3.5 px-4">Harga</th>
+                <th className="py-3.5 px-4">Harga (Rp)</th>
+                <th className="py-3.5 px-4">Berat</th>
                 <th className="py-3.5 px-4">Stok</th>
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4 text-right">Aksi</th>
@@ -109,7 +132,7 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     <Package className="w-10 h-10 mx-auto mb-2 opacity-40" />
                     <p>Tidak ada produk yang cocok dengan pencarian.</p>
                   </td>
@@ -147,16 +170,63 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
                       </span>
                     </td>
 
-                    {/* PRICE */}
+                    {/* PRICE WITH INLINE QUICK EDIT */}
                     <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900 dark:text-white">
-                        {formatRupiah(prod.discountPrice ?? prod.price)}
-                      </div>
-                      {prod.discountPrice && (
-                        <span className="text-[10px] text-slate-400 line-through">
-                          {formatRupiah(prod.price)}
-                        </span>
+                      {editingPriceId === prod.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={editingPriceValue}
+                            onChange={(e) => {
+                              const num = parseCurrencyInput(e.target.value);
+                              setEditingPriceValue(num > 0 ? formatNumberWithDots(num) : e.target.value.replace(/[^\d]/g, ''));
+                            }}
+                            className="w-24 px-2 py-1 text-xs rounded-lg border border-ocean-500 bg-white dark:bg-slate-900 font-bold"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => saveEditPrice(prod.id)}
+                            className="p-1 rounded bg-ocean-600 text-white hover:bg-ocean-700"
+                            title="Simpan Harga"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setEditingPriceId(null)}
+                            className="p-1 rounded bg-slate-200 text-slate-700 hover:bg-slate-300"
+                            title="Batal"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => onQuickUpdatePrice && startEditPrice(prod)}
+                          className="group/price cursor-pointer"
+                          title="Klik untuk ubah harga cepat"
+                        >
+                          <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                            <span>{formatRupiah(prod.discountPrice ?? prod.price)}</span>
+                            {onQuickUpdatePrice && (
+                              <Edit className="w-3 h-3 opacity-0 group-hover/price:opacity-100 text-slate-400 transition-opacity" />
+                            )}
+                          </div>
+                          {prod.discountPrice && (
+                            <span className="text-[10px] text-slate-400 line-through block">
+                              {formatRupiah(prod.price)}
+                            </span>
+                          )}
+                        </div>
                       )}
+                    </td>
+
+                    {/* WEIGHT */}
+                    <td className="py-3 px-4">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                        <Scale className="w-3 h-3 text-ocean-600" />
+                        {formatWeight(prod.weight || 200)}
+                      </span>
                     </td>
 
                     {/* STOCK (QUICK EDIT) */}
@@ -203,7 +273,7 @@ export const AdminProductsView: React.FC<AdminProductsViewProps> = ({
                         <button
                           onClick={() => onEditProduct(prod)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                          title="Edit Produk"
+                          title="Edit Produk Lengkap"
                         >
                           <Edit className="w-4 h-4" />
                         </button>

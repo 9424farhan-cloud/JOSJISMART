@@ -157,4 +157,14 @@ export const productService = {
     const status: ProductStatus = newStock > 0 ? 'available' : 'out_of_stock';
     return this.updateProduct(id, { stock: newStock, status });
   },
+
+  quickUpdatePrice(id: string, newPrice: number, newDiscountPrice?: number): Product {
+    authService.verifyAdminPermission();
+    return this.updateProduct(id, { price: newPrice, discountPrice: newDiscountPrice });
+  },
+
+  quickUpdateWeight(id: string, newWeight: number): Product {
+    authService.verifyAdminPermission();
+    return this.updateProduct(id, { weight: newWeight });
+  },
 };

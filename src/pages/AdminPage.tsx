@@ -149,6 +149,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
   };
 
+  const handleQuickPrice = (productId: string, newPrice: number) => {
+    try {
+      productService.quickUpdatePrice(productId, newPrice);
+      showToast({ type: 'success', title: 'Harga Berhasil Diperbarui' });
+      onRefreshData();
+    } catch (err: any) {
+      showToast({ type: 'error', title: 'Gagal Update Harga', message: err.message });
+    }
+  };
+
   // --- CATEGORY HANDLERS ---
   const handleCreateCategory = (data: { name: string; description: string; icon?: string }) => {
     try {
@@ -242,6 +252,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             onDeleteProduct={handleDeleteProduct}
             onPreviewProduct={onPreviewProduct}
             onQuickUpdateStock={handleQuickStock}
+            onQuickUpdatePrice={handleQuickPrice}
           />
         )}
 
