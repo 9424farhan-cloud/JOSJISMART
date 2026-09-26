@@ -60,7 +60,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, setCurrentTab }) => {
               />
               <div>
                 <span className="text-xl font-extrabold tracking-tight text-white block">
-                  JOSJI<span className="text-ocean-400">SMART</span>
+                  JOSJIS<span className="text-ocean-400">MART</span>
                 </span>
                 <span className="text-[11px] text-slate-400 block -mt-0.5">
                   Toko Online Pilihan Terbaik

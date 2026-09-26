@@ -69,8 +69,8 @@ export const Header: React.FC<HeaderProps> = ({
                 className="w-10 h-10 sm:w-11 sm:h-11 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
               />
               <div>
-                <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-                  JOSJI<span className="text-ocean-600 dark:text-ocean-400">SMART</span>
+                <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                  JOSJIS<span className="text-ocean-600 dark:text-ocean-400">MART</span>
                 </span>
                 <span className="hidden sm:block text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-400">
                   Toko Online Pilihan Terbaik
