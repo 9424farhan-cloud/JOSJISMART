@@ -52,13 +52,20 @@ export const Footer: React.FC<FooterProps> = ({ settings, setCurrentTab }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* BRAND */}
           <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-ocean-600 text-white flex items-center justify-center shadow-md">
-                <Compass className="w-5 h-5" />
+            <div className="flex items-center gap-3">
+              <img
+                src="/logo.png"
+                alt="JOSJISMART Logo"
+                className="w-10 h-10 object-contain rounded-xl shadow-xs"
+              />
+              <div>
+                <span className="text-xl font-extrabold tracking-tight text-white block">
+                  JOSJI<span className="text-ocean-400">SMART</span>
+                </span>
+                <span className="text-[11px] text-slate-400 block -mt-0.5">
+                  Toko Online Pilihan Terbaik
+                </span>
               </div>
-              <span className="text-xl font-extrabold tracking-tight text-white">
-                JOSJI<span className="text-ocean-400">SMART</span>
-              </span>
             </div>
             <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
               Toko online bergaya pesisir tropis modern. Menghadirkan berbagai pilihan busana sejuk, gadget outdoor, aksesoris pantai, dan kebutuhan harian dengan kenyamanan berbelanja istimewa.

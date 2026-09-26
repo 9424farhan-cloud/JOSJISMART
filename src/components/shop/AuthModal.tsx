@@ -54,9 +54,11 @@ export const AuthModal: React.FC = () => {
 
         {/* HEADER */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-ocean-100 dark:bg-ocean-950 text-ocean-600 dark:text-ocean-400 flex items-center justify-center mx-auto mb-3 shadow-sm">
-            <User className="w-6 h-6" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="JOSJISMART"
+            className="w-16 h-16 object-contain mx-auto mb-3 drop-shadow-sm"
+          />
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Masuk ke JOSJISMART
           </h2>

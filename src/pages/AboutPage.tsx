@@ -42,9 +42,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({ settings }) => {
         
         {/* HEADER HERO */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-ocean-600 text-white flex items-center justify-center mx-auto shadow-md">
-            <Compass className="w-8 h-8" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="JOSJISMART Logo"
+            className="w-24 h-24 sm:w-28 sm:h-28 object-contain mx-auto drop-shadow-md rounded-2xl"
+          />
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Tentang JOSJISMART
           </h1>

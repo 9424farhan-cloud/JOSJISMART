@@ -36,16 +36,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     <aside className="w-full lg:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 lg:p-6 flex flex-col shrink-0">
       {/* BRAND & ROLE HEADER */}
       <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-ocean-600 text-white flex items-center justify-center font-bold shadow-sm">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/logo.png"
+            alt="JOSJISMART"
+            className="w-9 h-9 object-contain rounded-xl shadow-xs"
+          />
           <div>
-            <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
-              ADMIN PANEL
+            <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white block">
+              JOSJISMART
             </span>
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
-              JOSJISMART Management
+            <p className="text-[10px] text-ocean-600 dark:text-ocean-400 font-semibold uppercase tracking-wider flex items-center gap-1">
+              <ShieldCheck className="w-3 h-3" /> ADMIN PANEL
             </p>
           </div>
         </div>

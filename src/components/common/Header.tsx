@@ -61,17 +61,19 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleNavClick('home')}
-              className="flex items-center gap-2 group text-left focus:outline-none"
+              className="flex items-center gap-2.5 group text-left focus:outline-none"
             >
-              <div className="w-10 h-10 rounded-xl bg-ocean-600 dark:bg-ocean-500 text-white flex items-center justify-center shadow-md shadow-ocean-600/20 group-hover:bg-ocean-700 transition-colors">
-                <Compass className="w-6 h-6 stroke-[2.2]" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="JOSJISMART Logo"
+                className="w-10 h-10 sm:w-11 sm:h-11 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
+              />
               <div>
                 <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
                   JOSJI<span className="text-ocean-600 dark:text-ocean-400">SMART</span>
                 </span>
                 <span className="hidden sm:block text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-400">
-                  Tropical Lifestyle Store
+                  Toko Online Pilihan Terbaik
                 </span>
               </div>
             </button>
