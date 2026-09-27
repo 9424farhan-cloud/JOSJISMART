@@ -1,6 +1,6 @@
 import React from 'react';
 import { Category } from '../../types';
-import { Shirt, Smartphone, Glasses, Sparkles, Coffee, Tag, ArrowRight } from 'lucide-react';
+import { Shirt, Smartphone, Glasses, Sparkles, Coffee, Tag, ArrowRight, Lock, EyeOff } from 'lucide-react';
 
 interface CategoryListProps {
   categories: Category[];
@@ -27,6 +27,11 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         return <Sparkles className="w-6 h-6" />;
       case 'coffee':
         return <Coffee className="w-6 h-6" />;
+      case 'lock':
+        return <Lock className="w-6 h-6" />;
+      case 'eyeoff':
+      case 'eye-off':
+        return <EyeOff className="w-6 h-6" />;
       default:
         return <Tag className="w-6 h-6" />;
     }
@@ -58,7 +63,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         </div>
 
         {/* CATEGORY GRID */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {categories.map((cat) => {
             const isSelected = selectedCategoryId === cat.id;
 

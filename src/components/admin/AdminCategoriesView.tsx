@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Category } from '../../types';
-import { Plus, Edit, Trash2, Layers, Tag, X, Check } from 'lucide-react';
+import { Plus, Edit, Trash2, Layers, Tag, X, Check, Lock, EyeOff, Shirt, Smartphone, Glasses, Sparkles, Coffee } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
 interface AdminCategoriesViewProps {
@@ -23,6 +23,28 @@ export const AdminCategoriesView: React.FC<AdminCategoriesViewProps> = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [icon, setIcon] = useState('Tag');
+
+  const renderCategoryIcon = (iconName: string) => {
+    switch (iconName.toLowerCase()) {
+      case 'shirt':
+        return <Shirt className="w-5 h-5" />;
+      case 'smartphone':
+        return <Smartphone className="w-5 h-5" />;
+      case 'glasses':
+        return <Glasses className="w-5 h-5" />;
+      case 'sparkles':
+        return <Sparkles className="w-5 h-5" />;
+      case 'coffee':
+        return <Coffee className="w-5 h-5" />;
+      case 'lock':
+        return <Lock className="w-5 h-5" />;
+      case 'eyeoff':
+      case 'eye-off':
+        return <EyeOff className="w-5 h-5" />;
+      default:
+        return <Tag className="w-5 h-5" />;
+    }
+  };
 
   const openCreateModal = () => {
     setEditingCategory(null);
@@ -106,7 +128,7 @@ export const AdminCategoriesView: React.FC<AdminCategoriesViewProps> = ({
             <div>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-ocean-100 dark:bg-ocean-950 text-ocean-600 dark:text-ocean-400 flex items-center justify-center font-bold">
-                  <Tag className="w-5 h-5" />
+                  {renderCategoryIcon(cat.icon)}
                 </div>
                 <div className="flex items-center gap-1">
                   <button
@@ -186,6 +208,8 @@ export const AdminCategoriesView: React.FC<AdminCategoriesViewProps> = ({
                   <option value="Glasses">Glasses (Aksesoris)</option>
                   <option value="Sparkles">Sparkles (Perawatan)</option>
                   <option value="Coffee">Coffee (Makanan/Minuman)</option>
+                  <option value="Lock">Lock (Barang Rahasia / Eksklusif)</option>
+                  <option value="EyeOff">EyeOff (Rahasia / Tersembunyi)</option>
                   <option value="Tag">Tag (Umum)</option>
                 </select>
               </div>

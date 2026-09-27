@@ -21,7 +21,14 @@ export const storageService = {
         this.saveProducts(INITIAL_PRODUCTS);
         return INITIAL_PRODUCTS;
       }
-      return JSON.parse(data);
+      const parsed: Product[] = JSON.parse(data);
+      const missingInitial = INITIAL_PRODUCTS.filter(ip => !parsed.some(p => p.id === ip.id));
+      if (missingInitial.length > 0) {
+        const merged = [...parsed, ...missingInitial];
+        this.saveProducts(merged);
+        return merged;
+      }
+      return parsed;
     } catch {
       return INITIAL_PRODUCTS;
     }
@@ -43,7 +50,14 @@ export const storageService = {
         this.saveCategories(INITIAL_CATEGORIES);
         return INITIAL_CATEGORIES;
       }
-      return JSON.parse(data);
+      const parsed: Category[] = JSON.parse(data);
+      const missingInitial = INITIAL_CATEGORIES.filter(ic => !parsed.some(c => c.id === ic.id));
+      if (missingInitial.length > 0) {
+        const merged = [...parsed, ...missingInitial];
+        this.saveCategories(merged);
+        return merged;
+      }
+      return parsed;
     } catch {
       return INITIAL_CATEGORIES;
     }

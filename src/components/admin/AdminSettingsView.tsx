@@ -203,7 +203,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({
           </div>
 
           <p className="text-xs text-slate-500 leading-relaxed">
-            Anda dapat mereset data toko ke demo awal (10 produk tropis, 5 kategori, 3 pesanan contoh) atau membersihkan seluruh produk dummy agar toko siap diisi dengan produk nyata Anda.
+            Anda dapat mereset data toko ke demo awal (12 produk pilihan, 6 kategori termasuk Barang Rahasia, 3 pesanan contoh) atau membersihkan seluruh produk dummy agar toko siap diisi dengan produk nyata Anda.
           </p>
 
           <div className="flex flex-wrap gap-3 pt-2">
@@ -238,7 +238,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({
               Reset ke Data Demo Awal?
             </h3>
             <p className="text-xs text-slate-500">
-              Tindakan ini akan mengembalikan seluruh 10 produk sampel tropis, 5 kategori, dan pesanan dummy.
+              Tindakan ini akan mengembalikan seluruh 12 produk sampel, 6 kategori, dan pesanan dummy.
             </p>
             <div className="flex justify-end gap-2 pt-2">
               <button

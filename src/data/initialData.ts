@@ -36,6 +36,13 @@ export const INITIAL_CATEGORIES: Category[] = [
     icon: 'Coffee',
     description: 'Biji kopi nusantara pilihan dan camilan renyah alami untuk menemani waktu santai.',
   },
+  {
+    id: 'cat-secret',
+    name: 'Barang Rahasia',
+    slug: 'barang-rahasia',
+    icon: 'Lock',
+    description: 'Koleksi barang eksklusif, edisi terbatas, dan item misterius dengan penawaran rahasia.',
+  },
 ];
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -336,6 +343,67 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewCount: 35,
     createdAt: '2026-09-18T15:20:00Z',
     updatedAt: '2026-09-18T15:20:00Z',
+  },
+  {
+    id: 'prod-011',
+    name: 'Mystery Ocean Treasure Box - Edisi Eksklusif',
+    slug: 'mystery-ocean-treasure-box-edisi-eksklusif',
+    price: 350000,
+    discountPrice: 289000,
+    stock: 15,
+    categoryId: 'cat-secret',
+    categoryName: 'Barang Rahasia',
+    description: 'Kotak misteri rahasia berisi kombinasi 3 hingga 5 barang premium pilihan dari JOSJISMART. Nilai isi dijamin melampaui harga yang dibayarkan, mulai dari gadget tahan air hingga aksesoris eksklusif langka yang tidak dijual terpisah.',
+    specifications: [
+      { label: 'Isi Paket', value: '3 - 5 Item Premium Rahasia Acak' },
+      { label: 'Edisi', value: 'Limited Secret Summer Edition' },
+      { label: 'Jaminan Nilai', value: 'Total isi di atas Rp 450.000' },
+      { label: 'Kemasan', value: 'Wooden Style Ocean Treasure Box Eksklusif' },
+    ],
+    variants: [
+      { name: 'Kategori Mystery', options: ['Adventure & Gadget Box', 'Lifestyle & Beach Box'] },
+    ],
+    weight: 750,
+    status: 'available',
+    isFeatured: true,
+    images: [
+      'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=800&q=80',
+    ],
+    rating: 5.0,
+    reviewCount: 19,
+    createdAt: '2026-09-20T10:00:00Z',
+    updatedAt: '2026-09-20T10:00:00Z',
+  },
+  {
+    id: 'prod-012',
+    name: 'Brankas Mini Portabel Anti Air & Maling (Secret Safe Box)',
+    slug: 'brankas-mini-portabel-anti-air-maling',
+    price: 320000,
+    discountPrice: 265000,
+    stock: 20,
+    categoryId: 'cat-secret',
+    categoryName: 'Barang Rahasia',
+    description: 'Tempat penyimpanan rahasia tahan benturan dan kedap air IPX8 dengan kombinasi kode angka 3-digit serta kabel baja pengaman. Sangat aman untuk menyembunyikan dan mengamankan perhiasan, kunci, paspor, dan uang tunai saat beraktivitas di pantai atau bepergian.',
+    specifications: [
+      { label: 'Material', value: 'High-Impact ABS Plastic + Steel Cable' },
+      { label: 'Kunci Pengaman', value: '3-Digit Resettable Combination Lock' },
+      { label: 'Ketahanan Air', value: 'IPX8 Waterproof & Sandproof Seal' },
+      { label: 'Kabel Pengikat', value: 'Kabel Baja Tahan Potong 50 cm' },
+    ],
+    variants: [
+      { name: 'Warna', options: ['Stealth Black', 'Navy Marine', 'Desert Sand'] },
+    ],
+    weight: 520,
+    status: 'available',
+    isFeatured: false,
+    images: [
+      'https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=800&q=80',
+    ],
+    rating: 4.9,
+    reviewCount: 23,
+    createdAt: '2026-09-21T11:30:00Z',
+    updatedAt: '2026-09-21T11:30:00Z',
   },
 ];
 
