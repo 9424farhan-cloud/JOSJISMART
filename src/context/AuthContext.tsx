@@ -9,6 +9,7 @@ interface AuthContextType {
   isViewer: boolean;
   loginAdmin: (username: string, password: string) => Promise<boolean>;
   loginGoogle: (mockProfile?: { name: string; email: string }) => Promise<boolean>;
+  loginWithGooglePopup: () => Promise<boolean>;
   logout: () => void;
   authModalOpen: boolean;
   setAuthModalOpen: (open: boolean) => void;
@@ -51,14 +52,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginGoogle = async (mockProfile?: { name: string; email: string }): Promise<boolean> => {
+  const loginWithGooglePopup = async (): Promise<boolean> => {
     try {
-      const loggedUser = await authService.loginGoogle(mockProfile);
+      const loggedUser = await authService.loginWithGooglePopup();
       setUser(loggedUser);
       showToast({
         type: 'success',
         title: 'Login Google Berhasil',
-        message: `Selamat datang, ${loggedUser.name}! Anda masuk sebagai Pengunjung (Viewer).`,
+        message: `Selamat datang, ${loggedUser.name}!`,
       });
       return true;
     } catch (err: any) {
@@ -66,6 +67,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         type: 'error',
         title: 'Gagal Masuk Google',
         message: err.message || 'Terjadi kesalahan saat masuk dengan Google.',
+      });
+      return false;
+    }
+  };
+
+  const loginGoogle = async (mockProfile?: { name: string; email: string }): Promise<boolean> => {
+    try {
+      const loggedUser = await authService.loginGoogle(mockProfile);
+      setUser(loggedUser);
+      showToast({
+        type: 'success',
+        title: 'Login Berhasil',
+        message: `Selamat datang, ${loggedUser.name}! Anda masuk sebagai Pengunjung (Viewer).`,
+      });
+      return true;
+    } catch (err: any) {
+      showToast({
+        type: 'error',
+        title: 'Gagal Masuk',
+        message: err.message || 'Terjadi kesalahan saat masuk.',
       });
       return false;
     }
@@ -89,6 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isViewer,
         loginAdmin,
         loginGoogle,
+        loginWithGooglePopup,
         logout,
         authModalOpen,
         setAuthModalOpen,

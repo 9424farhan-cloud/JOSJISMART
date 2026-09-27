@@ -1,5 +1,7 @@
 import { User } from '../types';
 import { sha256, generateSessionToken } from '../utils/crypto';
+import { auth, googleProvider } from './firebase';
+import { signInWithPopup, signOut } from 'firebase/auth';
 
 // Configuration from environment variables
 const CONFIGURED_ADMIN_USERNAME = (import.meta.env.VITE_ADMIN_USERNAME || 'Gaza admin').trim();
@@ -128,8 +130,48 @@ class AuthService {
   }
 
   /**
-   * Google Viewer Login
-   * Explicitly sets role to VIEWER. Role cannot be elevated to ADMIN.
+   * Real Google Sign-In with Firebase Popup
+   */
+  public async loginWithGooglePopup(): Promise<User> {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const fbUser = result.user;
+
+      const user: User = {
+        id: fbUser.uid || `google-usr-${Date.now().toString(36)}`,
+        name: fbUser.displayName || 'Pengguna Google',
+        email: fbUser.email || 'pengguna@gmail.com',
+        role: 'VIEWER', // STRICTLY VIEWER
+        avatar: fbUser.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+        authProvider: 'google',
+        createdAt: new Date().toISOString(),
+      };
+
+      const token = generateSessionToken('VIEWER', user.email);
+      const session: AuthSession = {
+        user,
+        token,
+        expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
+      };
+
+      this.saveSession(session);
+      return user;
+    } catch (error: any) {
+      if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+        throw new Error('Jendela login Google ditutup sebelum selesai.');
+      }
+      if (error?.code === 'auth/popup-blocked') {
+        throw new Error('Popup login diblokir oleh browser. Harap izinkan popup di situs ini.');
+      }
+      if (error?.code === 'auth/unauthorized-domain') {
+        throw new Error(`Domain "${window.location.hostname}" belum terdaftar di Authorized Domains Firebase. Silakan daftarkan di Firebase Console atau gunakan opsi Masuk Cepat Pengunjung.`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Google Viewer Login (Simulated / Custom profile fallback)
    */
   public async loginGoogle(mockGoogleUser?: { name: string; email: string; avatar?: string }): Promise<User> {
     // Generate realistic Google profile or use provided
@@ -158,10 +200,11 @@ class AuthService {
     return user;
   }
 
-  public logout(): void {
+  public async logout(): Promise<void> {
     this.currentSession = null;
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
+      await signOut(auth).catch(() => {});
     } catch (e) {
       console.error('Logout error', e);
     }
