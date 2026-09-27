@@ -2,10 +2,10 @@ import { Product, Category, Order, StoreSettings } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_ORDERS, INITIAL_SETTINGS } from '../data/initialData';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'josji_products_v1',
-  CATEGORIES: 'josji_categories_v1',
-  ORDERS: 'josji_orders_v1',
-  SETTINGS: 'josji_settings_v1',
+  PRODUCTS: 'josji_products_v3',
+  CATEGORIES: 'josji_categories_v3',
+  ORDERS: 'josji_orders_v3',
+  SETTINGS: 'josji_settings_v3',
   SESSION: 'josji_session_v1',
   CART: 'josji_cart_v1',
   WISHLIST: 'josji_wishlist_v1',

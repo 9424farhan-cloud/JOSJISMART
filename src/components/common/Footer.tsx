@@ -69,7 +69,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, setCurrentTab }) => {
               </div>
             </div>
             <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
-              Toko online bergaya pesisir tropis modern. Menghadirkan berbagai pilihan busana sejuk, gadget outdoor, aksesoris pantai, dan kebutuhan harian dengan kenyamanan berbelanja istimewa.
+              Toko online bergaya pesisir tropis modern. Menghadirkan berbagai pilihan fashion berkualitas, gadget pintar, aksesoris elegan, dan kebutuhan harian dengan kenyamanan berbelanja istimewa.
             </p>
             <div className="pt-2 text-xs text-slate-400 space-y-1">
               <div className="flex items-center gap-2">

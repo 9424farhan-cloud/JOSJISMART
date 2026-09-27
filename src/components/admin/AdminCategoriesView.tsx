@@ -187,7 +187,7 @@ export const AdminCategoriesView: React.FC<AdminCategoriesViewProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="Contoh: Perlengkapan Pantai"
+                  placeholder="Contoh: Elektronik & Gadget"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-ocean-500"
