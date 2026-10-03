@@ -86,3 +86,18 @@ export function parseWeightInput(input: string | number, unit: 'g' | 'kg'): numb
   return unit === 'kg' ? Math.round(num * 1000) : Math.round(num);
 }
 
+/**
+ * Format phone number to international WhatsApp format (e.g. 085723691588 -> 6285723691588)
+ */
+export function formatWaNumber(phone: string = '085723691588'): string {
+  let clean = (phone || '').replace(/[^\d]/g, '');
+  if (!clean) return '6285723691588';
+  if (clean.startsWith('0')) {
+    clean = '62' + clean.slice(1);
+  } else if (!clean.startsWith('62')) {
+    clean = '62' + clean;
+  }
+  return clean;
+}
+
+

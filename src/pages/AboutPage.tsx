@@ -12,6 +12,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
+import { formatWaNumber } from '../utils/formatters';
 
 interface AboutPageProps {
   settings: StoreSettings;
@@ -119,7 +120,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ settings }) => {
 
             <div className="pt-2">
               <a
-                href={`https://wa.me/${settings.phone.replace(/[^\d]/g, '')}`}
+                href={`https://wa.me/${formatWaNumber(settings.phone)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-colors"

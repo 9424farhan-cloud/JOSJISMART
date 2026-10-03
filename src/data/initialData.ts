@@ -519,7 +519,7 @@ export const INITIAL_ORDERS: Order[] = [
 export const INITIAL_SETTINGS: StoreSettings = {
   storeName: 'JOSJISMART',
   tagline: 'Modern Smart Online Store',
-  phone: '0812-3456-7890',
+  phone: '0857-2369-1588',
   email: 'halo@josjismart.com',
   address: 'Jl. Boulevard Smart City No. 88',
   city: 'Kota Modern',

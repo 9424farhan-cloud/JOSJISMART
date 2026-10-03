@@ -101,7 +101,12 @@ export const storageService = {
         this.saveSettings(INITIAL_SETTINGS);
         return INITIAL_SETTINGS;
       }
-      return JSON.parse(data);
+      const parsed: StoreSettings = JSON.parse(data);
+      if (!parsed.phone || parsed.phone.includes('0812-3456-7890') || parsed.phone.includes('081234567890')) {
+        parsed.phone = INITIAL_SETTINGS.phone;
+        this.saveSettings(parsed);
+      }
+      return parsed;
     } catch {
       return INITIAL_SETTINGS;
     }

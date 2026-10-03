@@ -8,6 +8,7 @@ export interface User {
   avatar?: string;
   authProvider: 'credentials' | 'google';
   createdAt: string;
+  isFallback?: boolean;
 }
 
 export interface Specification {

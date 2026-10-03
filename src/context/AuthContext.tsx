@@ -56,11 +56,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const loggedUser = await authService.loginWithGooglePopup();
       setUser(loggedUser);
-      showToast({
-        type: 'success',
-        title: 'Login Google Berhasil',
-        message: `Selamat datang, ${loggedUser.name}!`,
-      });
+      if (loggedUser.isFallback) {
+        showToast({
+          type: 'info',
+          title: 'Masuk Mode Pengunjung (Google)',
+          message: 'Google Sign-In belum diaktifkan di Firebase Console. Anda otomatis masuk sebagai Pengunjung (Viewer).',
+        });
+      } else {
+        showToast({
+          type: 'success',
+          title: 'Login Google Berhasil',
+          message: `Selamat datang, ${loggedUser.name}!`,
+        });
+      }
       return true;
     } catch (err: any) {
       showToast({

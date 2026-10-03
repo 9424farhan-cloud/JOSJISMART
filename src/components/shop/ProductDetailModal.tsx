@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Product } from '../../types';
-import { formatRupiah, formatWeight, calculateDiscountPercent } from '../../utils/formatters';
+import { formatRupiah, formatWeight, calculateDiscountPercent, formatWaNumber } from '../../utils/formatters';
 import {
   X,
   ShoppingBag,
@@ -13,11 +13,13 @@ import {
   Plus,
   Minus,
   Share2,
+  MessageCircle,
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useToast } from '../../context/ToastContext';
 import { productService } from '../../services/productService';
+import { bannerService } from '../../services/bannerService';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -298,6 +300,16 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <Check className="w-4 h-4" />
                   <span>Beli Langsung</span>
                 </button>
+
+                <a
+                  href={`https://wa.me/${formatWaNumber(bannerService.getSettings().phone || '085723691588')}?text=${encodeURIComponent(`Halo Admin JOSJISMART! Saya mau tanya seputar produk *${product.name}* (Harga: ${formatRupiah(product.discountPrice ?? product.price)}). Apakah masih tersedia?`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md flex items-center justify-center transition-colors"
+                  title="Tanya Admin via WhatsApp"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </a>
 
                 <button
                   onClick={() => toggleWishlist(product)}

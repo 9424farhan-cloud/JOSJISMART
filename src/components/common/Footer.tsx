@@ -2,6 +2,7 @@ import React from 'react';
 import { Compass, Phone, Mail, MapPin, Shield, Truck, RefreshCw } from 'lucide-react';
 import { StoreSettings } from '../../types';
 import logoImg from '../../assets/logo.png';
+import { formatWaNumber } from '../../utils/formatters';
 
 interface FooterProps {
   settings: StoreSettings;
@@ -135,7 +136,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, setCurrentTab }) => {
               <li>Pengiriman: JNE, SiCepat, J&T Express</li>
               <li className="pt-3">
                 <a
-                  href={`https://wa.me/${settings.phone.replace(/[^\d]/g, '')}`}
+                  href={`https://wa.me/${formatWaNumber(settings.phone)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700/80 hover:bg-emerald-600 text-white text-xs font-semibold transition-colors"

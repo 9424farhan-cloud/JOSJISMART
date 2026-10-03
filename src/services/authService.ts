@@ -163,9 +163,38 @@ class AuthService {
       if (error?.code === 'auth/popup-blocked') {
         throw new Error('Popup login diblokir oleh browser. Harap izinkan popup di situs ini.');
       }
-      if (error?.code === 'auth/unauthorized-domain') {
-        throw new Error(`Domain "${window.location.hostname}" belum terdaftar di Authorized Domains Firebase. Silakan daftarkan di Firebase Console atau gunakan opsi Masuk Cepat Pengunjung.`);
+
+      // Penanganan khusus jika Google Auth belum diaktifkan di Firebase Console
+      if (
+        error?.code === 'auth/configuration-not-found' ||
+        error?.code === 'auth/operation-not-allowed'
+      ) {
+        console.warn(
+          '[Auth] Google Sign-In belum diaktifkan di Firebase Console (auth/configuration-not-found). Mengalihkan otomatis ke login Pengunjung (fallback)...',
+          error
+        );
+        const fallbackUser = await this.loginGoogle({
+          name: 'Pengguna Google (Mode Tamu)',
+          email: 'pengguna.google@gmail.com',
+        });
+        fallbackUser.isFallback = true;
+        return fallbackUser;
       }
+
+      // Penanganan khusus jika domain belum didaftarkan di Firebase Authorized Domains
+      if (error?.code === 'auth/unauthorized-domain') {
+        console.warn(
+          `[Auth] Domain "${window.location.hostname}" belum terdaftar di Firebase Authorized Domains. Mengalihkan otomatis ke login Pengunjung (fallback)...`,
+          error
+        );
+        const fallbackUser = await this.loginGoogle({
+          name: 'Pengguna Google (Domain Tamu)',
+          email: 'pengguna.google@gmail.com',
+        });
+        fallbackUser.isFallback = true;
+        return fallbackUser;
+      }
+
       throw error;
     }
   }

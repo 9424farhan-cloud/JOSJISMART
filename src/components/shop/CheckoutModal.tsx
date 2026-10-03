@@ -347,6 +347,33 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
                 );
               })}
             </div>
+
+            {paymentMethod === 'QRIS Instan' && (
+              <div className="mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-rose-50 to-orange-50 dark:from-slate-800 dark:to-slate-800/80 border border-rose-200 dark:border-rose-900/40 flex items-center gap-3.5 animate-fade-in">
+                <div className="p-1.5 bg-white rounded-xl shadow-xs shrink-0 border border-slate-200">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=JOSJISMART-QRIS-${totalAmount}&margin=4`}
+                    alt="Preview QRIS"
+                    className="w-14 h-14 object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black text-rose-600 font-mono">QRIS</span>
+                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.5 rounded">
+                      Instan & Otomatis
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-700 dark:text-slate-200 font-bold mt-0.5">
+                    Tagihan: {formatRupiah(totalAmount)}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                    Mendukung BCA, Mandiri, BRI, GoPay, OVO, DANA, ShopeePay. QR Code ukuran penuh akan otomatis ditampilkan setelah pesanan dibuat.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <p className="mt-1.5 text-[11px] text-slate-400">
               * Mode simulasi transaksi: instruksi pembayaran akan otomatis tercatat di sistem toko tanpa memotong saldo nyata.
             </p>

@@ -10,6 +10,7 @@ import {
   Heart,
   ShieldCheck,
   Compass,
+  QrCode,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -23,6 +24,7 @@ interface HeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onOpenWishlist?: () => void;
+  onOpenQrModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -30,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   setCurrentTab,
   searchQuery,
   setSearchQuery,
+  onOpenQrModal,
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, isAdmin, setAuthModalOpen, setUserModalOpen } = useAuth();
@@ -185,6 +188,19 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </button>
 
+            {/* QRIS & QR Toko Button */}
+            <button
+              onClick={onOpenQrModal}
+              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5 group"
+              title="Bayar via QRIS & QR Toko"
+              aria-label="QRIS & QR Toko"
+            >
+              <QrCode className="w-5 h-5 text-ocean-600 dark:text-ocean-400 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline text-[11px] font-bold text-ocean-700 dark:text-ocean-300 bg-ocean-50 dark:bg-ocean-950/80 px-2 py-0.5 rounded-lg border border-ocean-200 dark:border-ocean-800">
+                QRIS
+              </span>
+            </button>
+
             {/* Dark / Light Mode Toggle */}
             <button
               onClick={toggleTheme}
@@ -328,6 +344,20 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             Tentang JOSJISMART
+          </button>
+
+          <button
+            onClick={() => {
+              onOpenQrModal?.();
+              setMobileMenuOpen(false);
+            }}
+            className="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-ocean-700 dark:text-ocean-300 bg-ocean-50/80 dark:bg-ocean-950/60 border border-ocean-100 dark:border-ocean-900 flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <QrCode className="w-4 h-4 text-ocean-600 dark:text-ocean-400" />
+              <span>Bayar via QRIS & QR Toko</span>
+            </span>
+            <span className="text-[10px] font-bold bg-rose-500 text-white px-1.5 py-0.5 rounded">QRIS</span>
           </button>
 
           {isAdmin && (
