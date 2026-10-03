@@ -71,35 +71,55 @@ export const MainLayout: React.FC = () => {
     refreshAllData();
   }, [refreshAllData]);
 
-  // Real-time Order Listener for Admin Notification
+  // Real-time Cloud + Local Order Listener for Admin Notification
   useEffect(() => {
-    const handleNewOrder = (e: any) => {
-      const newOrd: Order = e.detail;
-      refreshAllData();
-      if (isAdmin) {
+    if (!isAdmin) return;
+
+    // Request native browser desktop notification permission if supported
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+
+    const unsubscribe = orderService.subscribeToOrders((latestOrders, incomingOrder) => {
+      setOrders(latestOrders);
+      if (incomingOrder && incomingOrder.status === 'Menunggu') {
         playNotificationSound();
-        setRealtimeAlertOrder(newOrd);
+        setRealtimeAlertOrder(incomingOrder);
         showToast({
           type: 'info',
           title: '🔔 Pesanan Baru Masuk!',
-          message: `${newOrd.customerName} memesan barang senilai ${formatRupiah(newOrd.total)}. Klik lonceng untuk merespon.`,
+          message: `${incomingOrder.customerName} memesan (${formatRupiah(incomingOrder.total)}). Klik lonceng untuk merespon!`,
         });
+
+        // Native Browser Notification (if allowed)
+        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification('🔔 JOSJISMART: Pesanan Baru Masuk!', {
+              body: `${incomingOrder.customerName} memesan (${formatRupiah(incomingOrder.total)}). Klik untuk merespon!`,
+              icon: '/favicon.png',
+            });
+          } catch {}
+        }
       }
+    });
+
+    const handleLocalNewOrder = (e: any) => {
+      const newOrd: Order = e.detail;
+      playNotificationSound();
+      setRealtimeAlertOrder(newOrd);
+      showToast({
+        type: 'info',
+        title: '🔔 Pesanan Baru Masuk!',
+        message: `${newOrd.customerName} memesan (${formatRupiah(newOrd.total)}).`,
+      });
     };
 
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'josji_orders_v3') {
-        refreshAllData();
-      }
-    };
-
-    window.addEventListener('josji_new_order', handleNewOrder);
-    window.addEventListener('storage', handleStorage);
+    window.addEventListener('josji_new_order', handleLocalNewOrder);
     return () => {
-      window.removeEventListener('josji_new_order', handleNewOrder);
-      window.removeEventListener('storage', handleStorage);
+      unsubscribe();
+      window.removeEventListener('josji_new_order', handleLocalNewOrder);
     };
-  }, [isAdmin, refreshAllData, showToast]);
+  }, [isAdmin, showToast]);
 
   const recentProducts = products.slice(0, 8);
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 8);

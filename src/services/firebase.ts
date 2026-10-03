@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBfMAIYoSq3DF1SYDrQa4gi5f0WLYBcl8M",
@@ -14,6 +15,7 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 
 googleProvider.addScope('profile');
