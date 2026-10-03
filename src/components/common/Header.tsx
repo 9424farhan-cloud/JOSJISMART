@@ -11,11 +11,16 @@ import {
   ShieldCheck,
   Compass,
   QrCode,
+  Bell,
+  MessageCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { Order } from '../../types';
+import { formatRupiah } from '../../utils/formatters';
 import logoImg from '../../assets/logo.png';
 
 interface HeaderProps {
@@ -25,6 +30,8 @@ interface HeaderProps {
   setSearchQuery: (query: string) => void;
   onOpenWishlist?: () => void;
   onOpenQrModal?: () => void;
+  orders?: Order[];
+  onOpenOrderRespond?: (order: Order) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -33,6 +40,8 @@ export const Header: React.FC<HeaderProps> = ({
   searchQuery,
   setSearchQuery,
   onOpenQrModal,
+  orders = [],
+  onOpenOrderRespond,
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, isAdmin, setAuthModalOpen, setUserModalOpen } = useAuth();
@@ -41,6 +50,10 @@ export const Header: React.FC<HeaderProps> = ({
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSearchInput, setShowSearchInput] = useState(false);
+  const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
+
+  const pendingOrders = orders.filter((o) => o.status === 'Menunggu');
+  const pendingOrdersCount = pendingOrders.length;
 
   const handleNavClick = (tab: 'home' | 'products' | 'categories' | 'about' | 'admin') => {
     setCurrentTab(tab);
@@ -228,6 +241,114 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               )}
             </button>
+
+            {/* ADMIN ORDER NOTIFICATIONS BELL */}
+            {isAdmin && (
+              <div className="relative">
+                <button
+                  onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
+                  className={`relative p-2 rounded-xl transition-all ${
+                    pendingOrdersCount > 0
+                      ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700/80 shadow-xs'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                  title={
+                    pendingOrdersCount > 0
+                      ? `${pendingOrdersCount} Pesanan Baru Menunggu Respon Anda!`
+                      : 'Notifikasi Pesanan Masuk'
+                  }
+                  aria-label="Notifikasi Pesanan"
+                >
+                  <Bell
+                    className={`w-5 h-5 ${
+                      pendingOrdersCount > 0 ? 'animate-bounce text-rose-500 dark:text-rose-400' : ''
+                    }`}
+                  />
+                  {pendingOrdersCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-md animate-pulse">
+                      {pendingOrdersCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* NOTIFICATION POPUP DROPDOWN */}
+                {notifDropdownOpen && (
+                  <div className="absolute right-0 mt-2.5 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden animate-fade-in">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-ocean-600 dark:text-ocean-400" />
+                        <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                          Pesanan Masuk
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
+                        {pendingOrdersCount} Menunggu Respon
+                      </span>
+                    </div>
+
+                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                      {pendingOrders.length === 0 ? (
+                        <div className="p-6 text-center text-slate-400 text-xs">
+                          <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-60" />
+                          <p className="font-semibold text-slate-700 dark:text-slate-300">
+                            Semua Pesanan Sudah Direspon!
+                          </p>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Jika ada pesanan baru, Anda akan mendapatkan notifikasi & suara dering di sini.
+                          </p>
+                        </div>
+                      ) : (
+                        pendingOrders.map((ord) => (
+                          <div
+                            key={ord.id}
+                            className="p-3.5 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                                {ord.customerName}
+                              </span>
+                              <span className="font-extrabold text-xs text-ocean-600 dark:text-ocean-400 shrink-0">
+                                {formatRupiah(ord.total)}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 mb-2 truncate">
+                              {ord.items.map((i) => `${i.quantity}x ${i.productName}`).join(', ')}
+                            </p>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                #{ord.id} • {ord.customerPhone}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  setNotifDropdownOpen(false);
+                                  onOpenOrderRespond?.(ord);
+                                }}
+                                className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-xs flex items-center gap-1 transition-all active:scale-95"
+                              >
+                                <MessageCircle className="w-3 h-3" />
+                                <span>Respon</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 text-center">
+                      <button
+                        onClick={() => {
+                          setNotifDropdownOpen(false);
+                          setCurrentTab('admin');
+                        }}
+                        className="text-xs font-bold text-ocean-600 dark:text-ocean-400 hover:underline"
+                      >
+                        Buka Semua di Admin Panel →
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* User Profile / Login */}
             {user ? (

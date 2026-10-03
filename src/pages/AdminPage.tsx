@@ -229,6 +229,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onExitAdmin={onExitAdmin}
+        pendingOrdersCount={orders.filter((o) => o.status === 'Menunggu').length}
       />
 
       {/* MAIN VIEW CONTENT AREA */}

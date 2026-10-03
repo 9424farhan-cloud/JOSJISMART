@@ -39,6 +39,15 @@ export const orderService = {
 
     orders.unshift(newOrder);
     storageService.saveOrders(orders);
+
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new CustomEvent('josji_new_order', { detail: newOrder }));
+      } catch (e) {
+        console.error('Failed to dispatch new order event', e);
+      }
+    }
+
     return newOrder;
   },
 

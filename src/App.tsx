@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
-import { ToastProvider } from './context/ToastContext';
+import { ToastProvider, useToast } from './context/ToastContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -15,6 +15,7 @@ import { OrderSuccessModal } from './components/shop/OrderSuccessModal';
 import { AuthModal } from './components/shop/AuthModal';
 import { UserAccountModal } from './components/shop/UserAccountModal';
 import { QRCodeModal } from './components/shop/QRCodeModal';
+import { OrderRespondModal } from './components/admin/OrderRespondModal';
 
 import { HomePage } from './pages/HomePage';
 import { ProductsPage } from './pages/ProductsPage';
@@ -25,12 +26,14 @@ import { productService } from './services/productService';
 import { categoryService } from './services/categoryService';
 import { orderService } from './services/orderService';
 import { bannerService } from './services/bannerService';
-import { Instagram } from 'lucide-react';
-import { formatWaNumber } from './utils/formatters';
+import { Instagram, Bell, X } from 'lucide-react';
+import { formatWaNumber, formatRupiah } from './utils/formatters';
+import { playNotificationSound } from './utils/sound';
 import { Product, Category, Order, StoreSettings } from './types';
 
 export const MainLayout: React.FC = () => {
   const { isAdmin } = useAuth();
+  const { showToast } = useToast();
 
   // Navigation tab state
   const [currentTab, setCurrentTab] = useState<'home' | 'products' | 'categories' | 'about' | 'admin'>('home');
@@ -41,6 +44,8 @@ export const MainLayout: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [lastCreatedOrder, setLastCreatedOrder] = useState<Order | null>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [adminRespondOrder, setAdminRespondOrder] = useState<Order | null>(null);
+  const [realtimeAlertOrder, setRealtimeAlertOrder] = useState<Order | null>(null);
 
   // Data states
   const [products, setProducts] = useState<Product[]>([]);
@@ -66,6 +71,36 @@ export const MainLayout: React.FC = () => {
     refreshAllData();
   }, [refreshAllData]);
 
+  // Real-time Order Listener for Admin Notification
+  useEffect(() => {
+    const handleNewOrder = (e: any) => {
+      const newOrd: Order = e.detail;
+      refreshAllData();
+      if (isAdmin) {
+        playNotificationSound();
+        setRealtimeAlertOrder(newOrd);
+        showToast({
+          type: 'info',
+          title: '🔔 Pesanan Baru Masuk!',
+          message: `${newOrd.customerName} memesan barang senilai ${formatRupiah(newOrd.total)}. Klik lonceng untuk merespon.`,
+        });
+      }
+    };
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'josji_orders_v3') {
+        refreshAllData();
+      }
+    };
+
+    window.addEventListener('josji_new_order', handleNewOrder);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('josji_new_order', handleNewOrder);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [isAdmin, refreshAllData, showToast]);
+
   const recentProducts = products.slice(0, 8);
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 8);
 
@@ -89,6 +124,8 @@ export const MainLayout: React.FC = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         onOpenQrModal={() => setQrModalOpen(true)}
+        orders={orders}
+        onOpenOrderRespond={(ord) => setAdminRespondOrder(ord)}
       />
 
       {/* 2. MAIN CONTENT AREA */}
@@ -161,6 +198,63 @@ export const MainLayout: React.FC = () => {
       <UserAccountModal onSelectProduct={setSelectedProduct} />
       <QRCodeModal isOpen={qrModalOpen} onClose={() => setQrModalOpen(false)} />
       
+      {/* QUICK RESPOND TO BUYER MODAL (FOR ADMIN) */}
+      <OrderRespondModal
+        order={adminRespondOrder}
+        onClose={() => setAdminRespondOrder(null)}
+        onUpdateStatus={(id, status, notes) => {
+          orderService.updateOrderStatus(id, status, notes);
+          refreshAllData();
+        }}
+      />
+
+      {/* REAL-TIME INCOMING ORDER ALERT BANNER (FOR ADMIN) */}
+      {isAdmin && realtimeAlertOrder && (
+        <aside
+          role="status"
+          aria-live="polite"
+          className="fixed top-20 right-4 sm:right-6 z-50 max-w-sm w-full bg-white dark:bg-slate-900 border-2 border-emerald-500 rounded-3xl p-4 shadow-2xl shadow-emerald-950/20 animate-fade-in"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <Bell className="w-5 h-5 animate-bounce" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-wider">
+                  🔔 Pesanan Baru Masuk!
+                </span>
+                <button
+                  onClick={() => setRealtimeAlertOrder(null)}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
+                  aria-label="Tutup Notifikasi"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-xs font-bold text-slate-900 dark:text-white truncate mt-0.5">
+                {realtimeAlertOrder.customerName}
+              </p>
+              <p className="text-[11px] text-slate-500 truncate">
+                Total: <strong>{formatRupiah(realtimeAlertOrder.total)}</strong> • {realtimeAlertOrder.items.length} item
+              </p>
+              <div className="mt-2.5 flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const target = realtimeAlertOrder;
+                    setRealtimeAlertOrder(null);
+                    setAdminRespondOrder(target);
+                  }}
+                  className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors"
+                >
+                  Respon Pembeli Sekarang
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      )}
+
       {/* FLOATING INSTAGRAM CHAT BUTTON */}
       {currentTab !== 'admin' && (
         <a

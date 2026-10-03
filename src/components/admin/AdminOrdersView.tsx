@@ -11,8 +11,10 @@ import {
   MapPin,
   Clock,
   CheckCircle2,
+  MessageCircle,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { OrderRespondModal } from './OrderRespondModal';
 
 interface AdminOrdersViewProps {
   orders: Order[];
@@ -29,6 +31,7 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [respondOrder, setRespondOrder] = useState<Order | null>(null);
   const [notesInput, setNotesInput] = useState('');
 
   const statusOptions: OrderStatus[] = ['Menunggu', 'Diproses', 'Dikirim', 'Selesai', 'Dibatalkan'];
@@ -184,7 +187,15 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                     </td>
 
                     <td className="py-3.5 px-4 text-right">
-                      <div className="inline-flex items-center gap-1">
+                      <div className="inline-flex items-center gap-1.5">
+                        <button
+                          onClick={() => setRespondOrder(ord)}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-600 hover:text-white transition-all text-xs font-bold flex items-center gap-1 shadow-xs active:scale-95"
+                          title="Respon & Hubungi Pembeli"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Respon</span>
+                        </button>
                         <button
                           onClick={() => {
                             setSelectedOrder(ord);
@@ -336,12 +347,38 @@ export const AdminOrdersView: React.FC<AdminOrdersViewProps> = ({
                     </button>
                   </div>
                 </div>
+
+                {/* QUICK ACTION TO RESPOND */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRespondOrder(selectedOrder);
+                    }}
+                    className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Hubungi & Respon Pembeli ({selectedOrder.customerName})</span>
+                  </button>
+                </div>
               </div>
 
             </div>
           </div>
         </div>
       )}
+
+      {/* RESPOND MODAL */}
+      <OrderRespondModal
+        order={respondOrder}
+        onClose={() => setRespondOrder(null)}
+        onUpdateStatus={(orderId, status, notes) => {
+          onUpdateStatus(orderId, status, notes);
+          if (selectedOrder && selectedOrder.id === orderId) {
+            setSelectedOrder({ ...selectedOrder, status, notes: notes ?? selectedOrder.notes });
+          }
+        }}
+      />
     </div>
   );
 };
