@@ -24,13 +24,6 @@
       </div>
     </div>
     <script>
-      // Auto redirect ke /docs/ jika diakses via GitHub Pages dan root yang diload
-      if (window.location.hostname.endsWith('github.io') && !window.location.pathname.includes('/docs')) {
-        var cleanPath = window.location.pathname.replace(/\/+$/, '');
-        window.location.replace(cleanPath + '/docs/' + window.location.search + window.location.hash);
-      }
-    </script>
-    <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
           for (var registration of registrations) {
