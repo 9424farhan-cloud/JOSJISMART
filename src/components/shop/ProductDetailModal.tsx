@@ -14,6 +14,7 @@ import {
   Minus,
   Share2,
   MessageCircle,
+  Instagram,
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -302,13 +303,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </button>
 
                 <a
-                  href={`https://wa.me/${formatWaNumber(bannerService.getSettings().phone || '085723691588')}?text=${encodeURIComponent(`Halo Admin JOSJISMART! Saya mau tanya seputar produk *${product.name}* (Harga: ${formatRupiah(product.discountPrice ?? product.price)}). Apakah masih tersedia?`)}`}
+                  href="https://ig.me/m/z4turu"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md flex items-center justify-center transition-colors"
-                  title="Tanya Admin via WhatsApp"
+                  className="p-3 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white shadow-md flex items-center justify-center transition-all active:scale-95"
+                  title="Tanya Admin via Instagram @z4turu"
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <Instagram className="w-5 h-5" />
                 </a>
 
                 <button

@@ -2,7 +2,7 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="icon" type="image/png" href="./assets/logo-C2gtMe-8.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JOSJIS MART - Toko Online Pilihan & Terpercaya</title>
     <meta name="description" content="JOSJIS MART - Temukan produk pilihan berkualitas dengan kenyamanan belanja terbaik bernuansa Blue Ocean & Tropical Beach." />
@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="./assets/index-1ZCRBrrw.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-OVwwVR9Y.css">
+    <script type="module" crossorigin src="./assets/index-40GzErFF.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D3kBxqFu.css">
   </head>
   <body class="bg-[#f8fafc] text-slate-800 dark:bg-[#0b1528] dark:text-slate-100 min-h-screen font-sans antialiased transition-colors duration-200">
     <div id="root">
@@ -23,6 +23,13 @@
         <p style="font-size:13px; color:#64748b; margin:0;">Memuat katalog toko, harap tunggu sebentar...</p>
       </div>
     </div>
+    <script>
+      // Auto redirect ke /docs/ jika diakses via GitHub Pages dan root yang diload
+      if (window.location.hostname.endsWith('github.io') && !window.location.pathname.includes('/docs')) {
+        var cleanPath = window.location.pathname.replace(/\/+$/, '');
+        window.location.replace(cleanPath + '/docs/' + window.location.search + window.location.hash);
+      }
+    </script>
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {

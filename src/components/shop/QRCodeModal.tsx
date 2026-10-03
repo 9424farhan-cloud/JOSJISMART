@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Clock,
   Sparkles,
+  Instagram,
 } from 'lucide-react';
 import { formatRupiah, formatWaNumber } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
@@ -136,12 +137,12 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
             onClick={() => setActiveTab('whatsapp')}
             className={`flex-1 py-2 sm:py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'whatsapp'
-                ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                ? 'bg-white dark:bg-slate-700 text-pink-600 dark:text-pink-400 shadow-sm'
                 : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'
             }`}
           >
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
-            <span>QR WhatsApp</span>
+            <Instagram className="w-3.5 h-3.5 text-pink-500" />
+            <span>QR Instagram</span>
           </button>
 
           <button
@@ -246,60 +247,60 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({
             </div>
 
             <a
-              href={whatsappUrl}
+              href="https://ig.me/m/z4turu"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 shadow-md transition-colors"
+              className="w-full py-3 px-4 rounded-xl text-xs font-bold bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white flex items-center justify-center gap-2 shadow-md transition-all active:scale-95"
             >
-              <MessageCircle className="w-4 h-4" />
-              <span>Konfirmasi Pembayaran ke WA (0857-2369-1588)</span>
+              <Instagram className="w-4 h-4" />
+              <span>Konfirmasi Pembayaran ke Instagram (@z4turu)</span>
             </a>
           </div>
         )}
 
-        {/* TAB 2: QR WHATSAPP ADMIN */}
+        {/* TAB 2: QR INSTAGRAM ADMIN */}
         {activeTab === 'whatsapp' && (
           <div className="space-y-4 text-center">
-            <div className="p-5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border-2 border-emerald-200 dark:border-emerald-900/60">
+            <div className="p-5 rounded-2xl bg-gradient-to-b from-purple-50/50 to-pink-50/40 dark:from-purple-950/20 dark:to-pink-950/20 border-2 border-pink-200 dark:border-pink-900/60">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">
-                Scan untuk Hubungi Admin WhatsApp
+                Scan untuk DM Admin Instagram
               </h3>
-              <p className="text-xs text-emerald-700 dark:text-emerald-400 font-mono font-bold mb-3">
-                Nomor: 0857-2369-1588
+              <p className="text-xs text-pink-700 dark:text-pink-400 font-mono font-bold mb-3">
+                Username: @z4turu
               </p>
 
               {/* QR IMAGE */}
-              <div className="p-3 rounded-2xl bg-white border border-emerald-100 shadow-inner inline-block mx-auto mb-3">
+              <div className="p-3 rounded-2xl bg-white border border-pink-100 shadow-inner inline-block mx-auto mb-3">
                 <img
-                  src={getQrUrl(whatsappUrl)}
-                  alt="QR WhatsApp JOSJISMART"
+                  src={getQrUrl('https://www.instagram.com/z4turu/')}
+                  alt="QR Instagram JOSJISMART"
                   className="w-52 h-52 sm:w-60 sm:h-60 object-contain mx-auto rounded-lg"
                 />
               </div>
 
               <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
-                Buka kamera HP atau scanner WhatsApp Anda, lalu arahkan ke kode QR di atas untuk langsung terhubung dengan admin toko Gaza.
+                Buka kamera HP atau scanner Instagram Anda, lalu arahkan ke kode QR di atas untuk langsung terhubung dengan admin Instagram @z4turu.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
-                onClick={() => handleCopy('085723691588', 'Nomor WhatsApp')}
+                onClick={() => handleCopy('@z4turu', 'Username Instagram')}
                 className="py-2.5 px-3 rounded-xl text-xs font-bold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition-colors"
               >
                 <Copy className="w-4 h-4 text-slate-500" />
-                <span>Salin Nomor WA</span>
+                <span>Salin @z4turu</span>
               </button>
 
               <a
-                href={whatsappUrl}
+                href="https://ig.me/m/z4turu"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-2.5 px-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                className="py-2.5 px-3 rounded-xl text-xs font-bold bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95"
               >
                 <ExternalLink className="w-4 h-4" />
-                <span>Buka WhatsApp</span>
+                <span>Buka Chat IG</span>
               </a>
             </div>
           </div>

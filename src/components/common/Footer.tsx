@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, Phone, Mail, MapPin, Shield, Truck, RefreshCw } from 'lucide-react';
+import { Compass, Phone, Mail, MapPin, Shield, Truck, RefreshCw, Instagram } from 'lucide-react';
 import { StoreSettings } from '../../types';
 import logoImg from '../../assets/logo.png';
 import { formatWaNumber } from '../../utils/formatters';
@@ -136,12 +136,13 @@ export const Footer: React.FC<FooterProps> = ({ settings, setCurrentTab }) => {
               <li>Pengiriman: JNE, SiCepat, J&T Express</li>
               <li className="pt-3">
                 <a
-                  href={`https://wa.me/${formatWaNumber(settings.phone)}`}
+                  href="https://ig.me/m/z4turu"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700/80 hover:bg-emerald-600 text-white text-xs font-semibold transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white text-xs font-bold transition-all shadow-md active:scale-95"
                 >
-                  Hubungi Admin WhatsApp
+                  <Instagram className="w-3.5 h-3.5" />
+                  Chat Instagram: @z4turu
                 </a>
               </li>
             </ul>

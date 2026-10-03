@@ -10,6 +10,7 @@ import {
   HeartHandshake,
   MessageCircle,
   HelpCircle,
+  Instagram,
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import { formatWaNumber } from '../utils/formatters';
@@ -120,13 +121,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ settings }) => {
 
             <div className="pt-2">
               <a
-                href={`https://wa.me/${formatWaNumber(settings.phone)}`}
+                href="https://ig.me/m/z4turu"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold text-xs shadow-md transition-all active:scale-95"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>Chat Admin Gaza via WhatsApp</span>
+                <Instagram className="w-4 h-4" />
+                <span>Chat Admin Gaza via Instagram (@z4turu)</span>
               </a>
             </div>
           </div>
