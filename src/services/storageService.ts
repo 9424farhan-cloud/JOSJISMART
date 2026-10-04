@@ -81,10 +81,27 @@ export const storageService = {
       }
       const parsed: any[] = JSON.parse(data);
       if (!Array.isArray(parsed)) return INITIAL_ORDERS;
-      return parsed.map((o) => ({
-        ...o,
-        items: Array.isArray(o.items) ? o.items : [],
-      }));
+      return parsed
+        .filter((o) => o && typeof o === 'object' && o.id && Array.isArray(o.items) && o.items.length > 0)
+        .map((o) => ({
+          ...o,
+          id: String(o.id),
+          customerName: String(o.customerName ?? 'Pelanggan'),
+          customerPhone: String(o.customerPhone ?? '-'),
+          shippingAddress: String(o.shippingAddress ?? '-'),
+          shippingCity: String(o.shippingCity ?? '-'),
+          shippingPostalCode: String(o.shippingPostalCode ?? '00000'),
+          shippingCourier: String(o.shippingCourier ?? '-'),
+          shippingCost: Number(o.shippingCost) || 0,
+          paymentMethod: String(o.paymentMethod ?? '-'),
+          items: Array.isArray(o.items) ? o.items : [],
+          subtotal: Number(o.subtotal) || 0,
+          discount: Number(o.discount) || 0,
+          total: Number(o.total) || 0,
+          status: o.status || 'Menunggu',
+          createdAt: String(o.createdAt ?? new Date().toISOString()),
+          updatedAt: String(o.updatedAt ?? o.createdAt ?? new Date().toISOString()),
+        }));
     } catch {
       return INITIAL_ORDERS;
     }

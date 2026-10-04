@@ -181,6 +181,8 @@ export const orderService = {
     // Unified dispatch helper for incoming orders from any channel
     const dispatchIncomingOrder = (rawOrd: any) => {
       if (!rawOrd || !rawOrd.id) return;
+      // Ignore incomplete payloads (not created via real checkout)
+      if (!Array.isArray(rawOrd.items) || rawOrd.items.length === 0 || !rawOrd.customerPhone) return;
       const ord = sanitizeOrder(rawOrd);
 
       const currentOrders = storageService.getOrders();
