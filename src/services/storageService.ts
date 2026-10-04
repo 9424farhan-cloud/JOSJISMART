@@ -79,7 +79,12 @@ export const storageService = {
         this.saveOrders(INITIAL_ORDERS);
         return INITIAL_ORDERS;
       }
-      return JSON.parse(data);
+      const parsed: any[] = JSON.parse(data);
+      if (!Array.isArray(parsed)) return INITIAL_ORDERS;
+      return parsed.map((o) => ({
+        ...o,
+        items: Array.isArray(o.items) ? o.items : [],
+      }));
     } catch {
       return INITIAL_ORDERS;
     }

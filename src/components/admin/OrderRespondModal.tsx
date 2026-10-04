@@ -140,9 +140,9 @@ export const OrderRespondModal: React.FC<OrderRespondModalProps> = ({
             </div>
 
             <div className="text-[11px] text-slate-500">
-              Barang ({order.items.length} jenis):{' '}
+              Barang ({order.items?.length || 0} jenis):{' '}
               <strong className="text-slate-700 dark:text-slate-200">
-                {order.items.map((it) => `${it.productName} (${it.quantity}x)`).join(', ')}
+                {(order.items || []).map((it) => `${it.productName} (${it.quantity}x)`).join(', ') || '-'}
               </strong>
             </div>
           </div>

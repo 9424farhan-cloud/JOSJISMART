@@ -76,8 +76,18 @@ export const MainLayout: React.FC = () => {
     if (!isAdmin) return;
 
     // Request native browser desktop notification permission if supported
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().catch(() => {});
+    if (
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      typeof Notification.requestPermission === 'function' &&
+      Notification.permission === 'default'
+    ) {
+      try {
+        const p = Notification.requestPermission();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {});
+        }
+      } catch {}
     }
 
     let titleBlinkTimer: any = null;
@@ -140,8 +150,18 @@ export const MainLayout: React.FC = () => {
 
   const handleTestNotification = () => {
     playNotificationSound();
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().catch(() => {});
+    if (
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      typeof Notification.requestPermission === 'function' &&
+      Notification.permission === 'default'
+    ) {
+      try {
+        const p = Notification.requestPermission();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {});
+        }
+      } catch {}
     }
     const testOrd = orderService.triggerTestOrderNotification();
     setRealtimeAlertOrder(testOrd);
@@ -288,7 +308,7 @@ export const MainLayout: React.FC = () => {
                 {realtimeAlertOrder.customerName}
               </p>
               <p className="text-[11px] text-slate-500 truncate">
-                Total: <strong>{formatRupiah(realtimeAlertOrder.total)}</strong> • {realtimeAlertOrder.items.length} item
+                Total: <strong>{formatRupiah(realtimeAlertOrder.total || 0)}</strong> • {realtimeAlertOrder.items?.length || 0} item
               </p>
               <div className="mt-2.5 flex items-center gap-2">
                 <button

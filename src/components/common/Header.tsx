@@ -296,10 +296,18 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                         <span>Live Sync Multi-Tab & Perangkat Aktif</span>
                       </div>
-                      {typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted' && (
+                      {typeof window !== 'undefined' &&
+                        'Notification' in window &&
+                        typeof Notification.requestPermission === 'function' &&
+                        Notification.permission !== 'granted' && (
                         <button
                           onClick={() => {
-                            Notification.requestPermission().catch(() => {});
+                            try {
+                              const p = Notification.requestPermission();
+                              if (p && typeof p.catch === 'function') {
+                                p.catch(() => {});
+                              }
+                            } catch {}
                           }}
                           className="text-[10px] font-bold text-ocean-600 dark:text-ocean-400 underline hover:opacity-80"
                         >
@@ -330,11 +338,11 @@ export const Header: React.FC<HeaderProps> = ({
                                 {ord.customerName}
                               </span>
                               <span className="font-extrabold text-xs text-ocean-600 dark:text-ocean-400 shrink-0">
-                                {formatRupiah(ord.total)}
+                                {formatRupiah(ord.total || 0)}
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-500 mb-2 truncate">
-                              {ord.items.map((i) => `${i.quantity}x ${i.productName}`).join(', ')}
+                              {(ord.items || []).map((i) => `${i.quantity}x ${i.productName}`).join(', ') || '1 item'}
                             </p>
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-[10px] text-slate-400 font-mono">

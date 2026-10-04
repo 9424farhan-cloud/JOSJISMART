@@ -154,9 +154,34 @@ export const orderService = {
       callback(initialOrders);
     }
 
+    // Sanitize any incoming raw order object to guarantee safe fields
+    const sanitizeOrder = (raw: any): Order => {
+      return {
+        id: String(raw.id || generateId('ORD')),
+        customerName: String(raw.customerName || 'Pelanggan'),
+        customerPhone: String(raw.customerPhone || '-'),
+        customerEmail: raw.customerEmail ? String(raw.customerEmail) : undefined,
+        shippingAddress: String(raw.shippingAddress || '-'),
+        shippingCity: String(raw.shippingCity || '-'),
+        shippingPostalCode: String(raw.shippingPostalCode || '00000'),
+        shippingCourier: String(raw.shippingCourier || 'Reguler'),
+        shippingCost: Number(raw.shippingCost) || 0,
+        paymentMethod: String(raw.paymentMethod || 'Transfer'),
+        items: Array.isArray(raw.items) ? raw.items : [],
+        subtotal: Number(raw.subtotal) || 0,
+        discount: Number(raw.discount) || 0,
+        total: Number(raw.total) || 0,
+        status: (raw.status as OrderStatus) || 'Menunggu',
+        notes: raw.notes ? String(raw.notes) : undefined,
+        createdAt: String(raw.createdAt || new Date().toISOString()),
+        updatedAt: String(raw.updatedAt || new Date().toISOString()),
+      };
+    };
+
     // Unified dispatch helper for incoming orders from any channel
-    const dispatchIncomingOrder = (ord: Order) => {
-      if (!ord || !ord.id) return;
+    const dispatchIncomingOrder = (rawOrd: any) => {
+      if (!rawOrd || !rawOrd.id) return;
+      const ord = sanitizeOrder(rawOrd);
 
       const currentOrders = storageService.getOrders();
       const existingIdx = currentOrders.findIndex((o) => o.id === ord.id);
