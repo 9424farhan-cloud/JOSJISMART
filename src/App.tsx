@@ -271,14 +271,16 @@ export const MainLayout: React.FC = () => {
       <QRCodeModal isOpen={qrModalOpen} onClose={() => setQrModalOpen(false)} />
       
       {/* QUICK RESPOND TO BUYER MODAL (FOR ADMIN) */}
-      <OrderRespondModal
-        order={adminRespondOrder}
-        onClose={() => setAdminRespondOrder(null)}
-        onUpdateStatus={(id, status, notes) => {
-          orderService.updateOrderStatus(id, status, notes);
-          refreshAllData();
-        }}
-      />
+      {adminRespondOrder && (
+        <OrderRespondModal
+          order={adminRespondOrder}
+          onClose={() => setAdminRespondOrder(null)}
+          onUpdateStatus={(id, status, notes) => {
+            orderService.updateOrderStatus(id, status, notes);
+            refreshAllData();
+          }}
+        />
+      )}
 
       {/* REAL-TIME INCOMING ORDER ALERT BANNER (FOR ADMIN) */}
       {isAdmin && realtimeAlertOrder && (
