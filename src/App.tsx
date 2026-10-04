@@ -71,7 +71,7 @@ export const MainLayout: React.FC = () => {
     refreshAllData();
   }, [refreshAllData]);
 
-  // Real-time Cloud + Local Order Listener for Admin Notification
+  // Real-time Cloud + Multi-Tab Order Listener for Admin Notification
   useEffect(() => {
     if (!isAdmin) return;
 
@@ -80,11 +80,33 @@ export const MainLayout: React.FC = () => {
       Notification.requestPermission().catch(() => {});
     }
 
+    let titleBlinkTimer: any = null;
+    const originalTitle = document.title;
+    const flashTitle = (customerName: string) => {
+      if (typeof document === 'undefined' || document.hasFocus()) return;
+      let toggle = false;
+      clearInterval(titleBlinkTimer);
+      titleBlinkTimer = setInterval(() => {
+        document.title = toggle ? `🔔 Pesanan Baru: ${customerName}!` : originalTitle;
+        toggle = !toggle;
+      }, 1000);
+    };
+
+    const stopFlashTitle = () => {
+      clearInterval(titleBlinkTimer);
+      if (typeof document !== 'undefined') {
+        document.title = originalTitle;
+      }
+    };
+    window.addEventListener('focus', stopFlashTitle);
+    window.addEventListener('click', stopFlashTitle);
+
     const unsubscribe = orderService.subscribeToOrders((latestOrders, incomingOrder) => {
       setOrders(latestOrders);
       if (incomingOrder && incomingOrder.status === 'Menunggu') {
         playNotificationSound();
         setRealtimeAlertOrder(incomingOrder);
+        flashTitle(incomingOrder.customerName);
         showToast({
           type: 'info',
           title: '🔔 Pesanan Baru Masuk!',
@@ -94,32 +116,41 @@ export const MainLayout: React.FC = () => {
         // Native Browser Notification (if allowed)
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           try {
-            new Notification('🔔 JOSJISMART: Pesanan Baru Masuk!', {
+            const notif = new Notification('🔔 JOSJISMART: Pesanan Baru Masuk!', {
               body: `${incomingOrder.customerName} memesan (${formatRupiah(incomingOrder.total)}). Klik untuk merespon!`,
               icon: '/favicon.png',
+              tag: incomingOrder.id,
             });
+            notif.onclick = () => {
+              window.focus();
+              setRealtimeAlertOrder(incomingOrder);
+            };
           } catch {}
         }
       }
     });
 
-    const handleLocalNewOrder = (e: any) => {
-      const newOrd: Order = e.detail;
-      playNotificationSound();
-      setRealtimeAlertOrder(newOrd);
-      showToast({
-        type: 'info',
-        title: '🔔 Pesanan Baru Masuk!',
-        message: `${newOrd.customerName} memesan (${formatRupiah(newOrd.total)}).`,
-      });
-    };
-
-    window.addEventListener('josji_new_order', handleLocalNewOrder);
     return () => {
       unsubscribe();
-      window.removeEventListener('josji_new_order', handleLocalNewOrder);
+      stopFlashTitle();
+      window.removeEventListener('focus', stopFlashTitle);
+      window.removeEventListener('click', stopFlashTitle);
     };
   }, [isAdmin, showToast]);
+
+  const handleTestNotification = () => {
+    playNotificationSound();
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+    const testOrd = orderService.triggerTestOrderNotification();
+    setRealtimeAlertOrder(testOrd);
+    showToast({
+      type: 'success',
+      title: '🔔 Dering & Notifikasi Berhasil Diuji!',
+      message: 'Sistem notifikasi real-time aktif dan siap menyambut pesanan pembeli.',
+    });
+  };
 
   const recentProducts = products.slice(0, 8);
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 8);
@@ -146,6 +177,7 @@ export const MainLayout: React.FC = () => {
         onOpenQrModal={() => setQrModalOpen(true)}
         orders={orders}
         onOpenOrderRespond={(ord) => setAdminRespondOrder(ord)}
+        onTestNotification={handleTestNotification}
       />
 
       {/* 2. MAIN CONTENT AREA */}

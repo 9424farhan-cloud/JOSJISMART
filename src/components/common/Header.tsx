@@ -14,6 +14,8 @@ import {
   Bell,
   MessageCircle,
   CheckCircle2,
+  Volume2,
+  Radio,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -32,6 +34,7 @@ interface HeaderProps {
   onOpenQrModal?: () => void;
   orders?: Order[];
   onOpenOrderRespond?: (order: Order) => void;
+  onTestNotification?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -42,6 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenQrModal,
   orders = [],
   onOpenOrderRespond,
+  onTestNotification,
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, isAdmin, setAuthModalOpen, setUserModalOpen } = useAuth();
@@ -286,6 +290,24 @@ export const Header: React.FC<HeaderProps> = ({
                       </span>
                     </div>
 
+                    {/* REAL-TIME CLOUD & CROSS-TAB LIVE BADGE */}
+                    <div className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-[11px] text-emerald-800 dark:text-emerald-300">
+                      <div className="flex items-center gap-1.5 font-medium">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                        <span>Live Sync Multi-Tab & Perangkat Aktif</span>
+                      </div>
+                      {typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted' && (
+                        <button
+                          onClick={() => {
+                            Notification.requestPermission().catch(() => {});
+                          }}
+                          className="text-[10px] font-bold text-ocean-600 dark:text-ocean-400 underline hover:opacity-80"
+                        >
+                          Izinkan Desktop
+                        </button>
+                      )}
+                    </div>
+
                     <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                       {pendingOrders.length === 0 ? (
                         <div className="p-6 text-center text-slate-400 text-xs">
@@ -294,7 +316,7 @@ export const Header: React.FC<HeaderProps> = ({
                             Semua Pesanan Sudah Direspon!
                           </p>
                           <p className="text-[11px] text-slate-400 mt-0.5">
-                            Jika ada pesanan baru, Anda akan mendapatkan notifikasi & suara dering di sini.
+                            Jika ada pesanan baru dari akun lain, dering suara & notifikasi akan langsung berbunyi di sini.
                           </p>
                         </div>
                       ) : (
@@ -334,13 +356,25 @@ export const Header: React.FC<HeaderProps> = ({
                       )}
                     </div>
 
-                    <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 text-center">
+                    <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                      {onTestNotification && (
+                        <button
+                          onClick={() => {
+                            onTestNotification();
+                          }}
+                          className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 flex items-center gap-1.5 shadow-2xs transition-colors"
+                          title="Klik untuk mengetes suara dering dan notifikasi pop-up"
+                        >
+                          <Volume2 className="w-3.5 h-3.5 text-ocean-600 dark:text-ocean-400" />
+                          <span>Tes Dering</span>
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setNotifDropdownOpen(false);
                           setCurrentTab('admin');
                         }}
-                        className="text-xs font-bold text-ocean-600 dark:text-ocean-400 hover:underline"
+                        className="text-xs font-bold text-ocean-600 dark:text-ocean-400 hover:underline ml-auto"
                       >
                         Buka Semua di Admin Panel →
                       </button>
